@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pembayaran Vending Machine</title>
+  <style>
+    body { font-family: sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; }
+    .card { background: #1e293b; padding: 24px; border-radius: 16px; max-width: 380px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.4); text-align: center; }
+    h2 { margin-top: 0; color: #38bdf8; }
+    .detail { background: #0f172a; padding: 14px; border-radius: 10px; margin: 16px 0; text-align: left; }
+    .detail p { margin: 6px 0; font-size: 15px; }
+    .harga { font-size: 22px; font-weight: bold; color: #facc15; margin-top: 8px; }
+    button { background: #22c55e; color: #052e16; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; width: 100%; cursor: pointer; }
+    button:active { transform: scale(0.98); }
+    .voucher-box { display: none; margin-top: 20px; background: #064e3b; border: 2px dashed #34d399; padding: 16px; border-radius: 12px; }
+    .kode { font-size: 36px; font-weight: bold; letter-spacing: 6px; color: #ffffff; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Konfirmasi Pembayaran</h2>
+    <div class="detail">
+      <p>ID Transaksi: <strong id="txtId">-</strong></p>
+      <p>Produk: <strong id="txtProduk">-</strong></p>
+      <div class="harga" id="txtHarga">Rp 0</div>
+    </div>
+
+    <button id="btnBayar" onclick="prosesBayar()">BAYAR SEKARANG</button>
+
+    <div class="voucher-box" id="boxVoucher">
+      <p style="margin:0; font-size:14px; color:#a7f3d0;">Pembayaran Berhasil! Masukkan kode ini di layar mesin:</p>
+      <div class="kode" id="txtKode">0000</div>
+      <p style="margin:0; font-size:12px; color:#d1fae5;">*Kode hanya berlaku 1x untuk transaksi ini</p>
+    </div>
+  </div>
+
+  <script>
+    // Ambil data dari URL QR Code (?id=...&produk=...&harga=...)
+    const params = new URLSearchParams(window.location.search);
+    const idTransaksi = parseInt(params.get('id')) || 100;
+    const namaProduk = params.get('produk') || 'Produk Pilihan';
+    const hargaProduk = params.get('harga') || 'Rp 0';
+
+    document.getElementById('txtId').innerText = '#' + idTransaksi;
+    document.getElementById('txtProduk').innerText = namaProduk;
+    document.getElementById('txtHarga').innerText = hargaProduk;
+
+    function prosesBayar() {
+      // RUMUS RAHASIA (Harus sama persis dengan yang ada di ESP32!)
+      const kodeRahasia = ((idTransaksi * 73) + 1945) % 10000;
+      const kodeFormat4Digit = String(kodeRahasia).padStart(4, '0');
+
+      document.getElementById('btnBayar').style.display = 'none';
+      document.getElementById('txtKode').innerText = kodeFormat4Digit;
+      document.getElementById('boxVoucher').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
